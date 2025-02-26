@@ -21,6 +21,7 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 app.use(cors());
+app.options("*", cors()); // Enable preflight for all routes
 
 // Logger middleware
 if (process.env.NODE_ENV === "development") {

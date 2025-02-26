@@ -109,6 +109,9 @@ exports.viewFile = async (req, res, next) => {
     const downloadStream = bucket.openDownloadStreamByName(file.filename);
 
     res.set("Content-Type", file.contentType);
+    res.setHeader("Access-Control-Allow-Origin", "*"); // Allows all origins
+    res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+    res.setHeader("Content-Type", file.contentType); // Adjust MIME type as needed
     res.set("Content-Disposition", `inline; filename="${file.originalname}"`);
     res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
 
