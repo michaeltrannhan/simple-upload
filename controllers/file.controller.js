@@ -98,11 +98,39 @@ exports.uploadFile = (req, res, next) => {
 // Get all files for a user
 exports.getUserFiles = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count of files for pagination
+    const totalFiles = await File.countDocuments({ user: req.user.id });
+
+    // Get paginated files
     const files = await File.find({ user: req.user.id })
       .sort({ uploadDate: -1 })
-      .select("filename originalname contentType size uploadDate");
+      .select('filename originalname contentType size uploadDate')
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json({ files });
+    // Transform files to match desired response format
+    const transformedFiles = files.map(file => ({
+      id: file._id,
+      filename: file.filename,
+      originalname: file.originalname,
+      contentType: file.contentType,
+      size: file.size,
+      uploadDate: file.uploadDate
+    }));
+
+    res.status(200).json({
+      files: transformedFiles,
+      pagination: {
+        totalFiles,
+        totalPages: Math.ceil(totalFiles / limit),
+        currentPage: page,
+        limit
+      }
+    });
   } catch (error) {
     next(error);
   }
