@@ -1,0 +1,19 @@
+# Environment variables
+.env
+.env.*
+# Node modules
+node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+
+# Cache
+.cache
+
+# System
+.DS_Store
