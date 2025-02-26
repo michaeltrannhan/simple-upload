@@ -17,3 +17,5 @@ pids
 
 # System
 .DS_Store
+
+uploads/
