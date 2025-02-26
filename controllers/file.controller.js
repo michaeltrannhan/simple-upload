@@ -5,6 +5,7 @@ const { getBucket, generateUniqueFilename } = require("../utils/gridfs.util");
 const fs = require("fs");
 const multer = require("multer");
 const { Readable } = require("stream");
+const BASE_URL = process.env.BASE_URL || 'https://simple-upload-sigma.vercel.app';
 
 // Configure multer storage
 const storage = multer.memoryStorage();
@@ -95,31 +96,55 @@ exports.uploadFile = (req, res, next) => {
   });
 };
 
-// Get all files for a user
+// Public endpoint to view/download file
+exports.viewFile = async (req, res, next) => {
+  try {
+    const file = await File.findById(req.params.id);
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const bucket = getBucket();
+    const downloadStream = bucket.openDownloadStreamByName(file.filename);
+
+    res.set("Content-Type", file.contentType);
+    res.set("Content-Disposition", `inline; filename="${file.originalname}"`);
+    res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+
+    downloadStream.pipe(res);
+
+    downloadStream.on("error", (error) => {
+      return next(error);
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Modify getUserFiles to use public URL
 exports.getUserFiles = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Get total count of files for pagination
     const totalFiles = await File.countDocuments({ user: req.user.id });
 
-    // Get paginated files
     const files = await File.find({ user: req.user.id })
       .sort({ uploadDate: -1 })
       .select('filename originalname contentType size uploadDate')
       .skip(skip)
       .limit(limit);
 
-    // Transform files to match desired response format
     const transformedFiles = files.map(file => ({
       id: file._id,
       filename: file.filename,
       originalname: file.originalname,
       contentType: file.contentType,
       size: file.size,
-      uploadDate: file.uploadDate
+      uploadDate: file.uploadDate,
+      url: `${BASE_URL}/api/public/files/${file._id}` // Use public URL
     }));
 
     res.status(200).json({
