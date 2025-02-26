@@ -1,9 +1,17 @@
 {
     "version": 2,
-    "rewrites": [
+    "builds": [
         {
-            "source": "/(.*)",
-            "destination": "/api"
+            "src": "server.js",
+            "use": "@now/node"
+        }
+    ],
+    "routes": [
+        {
+            // Specify which paths will route to a destination using a regex
+            "src": "/(.*)",
+            // Specify the paths' destination
+            "dest": "server.js"
         }
     ]
 }
