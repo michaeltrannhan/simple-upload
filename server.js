@@ -46,6 +46,9 @@ mongoose
   });
 
 // Routes
+app.use("/", (req, res) => {
+  res.send("Hello World");
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
 
@@ -54,12 +57,10 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   const status = err.statusCode || 500;
   const message = err.message || "Something went wrong on the server";
-  res
-    .status(status)
-    .json({
-      message,
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
-    });
+  res.status(status).json({
+    message,
+    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
 });
 
 // Start server
