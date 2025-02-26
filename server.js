@@ -20,12 +20,7 @@ const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet());
-app.use(
-  cors({
-    origin: "*", // TODO: change to frontend url if we have one
-    credentials: true,
-  })
-);
+app.use(cors());
 
 // Logger middleware
 if (process.env.NODE_ENV === "development") {
