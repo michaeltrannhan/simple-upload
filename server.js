@@ -45,12 +45,14 @@ mongoose
     process.exit(1);
   });
 
-// Routes
+// API routes should come before the default route
+app.use("/api/auth", authRoutes);
+app.use("/api/files", fileRoutes);
+
+// Default route at root - move this to the end
 app.use("/", (req, res) => {
   res.send("Hello World");
 });
-app.use("/api/auth", authRoutes);
-app.use("/api/files", fileRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
